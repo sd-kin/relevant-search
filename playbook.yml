@@ -1,0 +1,12 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: true
+  roles:
+    - geerlingguy.java
+    - geerlingguy.elasticsearch
+    - { role: rvm.ruby,
+        tags: ruby,
+        rvm1_rubies: ['ruby-2.5.3'],
+        rvm1_user: 'vagrant'
+      }
