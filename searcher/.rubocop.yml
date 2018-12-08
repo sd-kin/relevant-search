@@ -1,0 +1,9 @@
+inherit_from: .rubocop_todo.yml
+
+Metrics/BlockLength:
+  ExcludedMethods:
+    - describe
+    - context
+
+Metrics/LineLength:
+  Max: 100

@@ -1,7 +1,9 @@
 require 'httparty'
-# http client for ElasticSearch
-module ElasticSearch
-  class Client
+
+module Clients
+  # TODO put it in Searcher namespace
+  # http client for ElasticSearch
+  class ElasticSearch
     include HTTParty
 
     attr_reader :settings
@@ -10,14 +12,8 @@ module ElasticSearch
 
     def initialize(analysis_settings: {}, mappings_settings: {})
       @settings = { settings: { number_of_shards: 1, index: {} } }
-      @settings[:settings][:index][:analysis] = analysis_settings if analysis_settings
-      @settings[:mappings] = mappings_settings if mappings_settings
-    end
-
-    def reindex(index = '/tmdb', data = TMDB.parse_data_for_bulk_index)
-      destroy
-      create
-      index(data)
+      settings.fetch(:settings).fetch(:index)[:analysis] = analysis_settings
+      settings[:mappings] = mappings_settings
     end
 
     def create(index = '/tmdb')
@@ -28,8 +24,14 @@ module ElasticSearch
       self.class.delete(index)
     end
 
-    def index(data = TMDB.parse_data_for_bulk_index)
+    def index(data)
       self.class.post('/_bulk', headers: { 'Content-Type' => 'application/json' }, body: data)
+    end
+
+    def reindex(data)
+      destroy
+      create
+      index(data)
     end
   end
 end
