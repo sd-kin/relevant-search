@@ -15,17 +15,5 @@ module Searcher
     def extract
       JSON.parse(File.open(file_path).read)
     end
-
-    def parse_data_for_bulk_index(index = 'tmdb', type = 'movie')
-      # TODO move that out to clients
-      bulk_movies = ''
-
-      extract.each do |id, film|
-        add_cmd = { index: { _index: index, _type: type, _id: id } }
-        bulk_movies += JSON.dump(add_cmd) + "\n" + JSON.dump(film) + "\n"
-      end
-
-      bulk_movies
-    end
   end
 end

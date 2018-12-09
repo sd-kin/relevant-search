@@ -10,4 +10,15 @@ describe Searcher do
       expect(Searcher.root).to_not include('lib')
     end
   end
+
+  describe '.reindex' do
+    let(:stub){ double }
+
+    it 'calls ElasticSearch reindex with TMDB data' do
+      expect_any_instance_of(Searcher::TMDB).to receive(:extract).and_return(stub)
+      expect_any_instance_of(Searcher::Clients::ElasticSearch).to receive(:reindex).with(stub)
+
+      Searcher.reindex
+    end
+  end
 end

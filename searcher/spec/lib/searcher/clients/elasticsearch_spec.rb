@@ -78,20 +78,50 @@ describe Searcher::Clients::ElasticSearch do
 
   describe '#index' do
     let(:client) { Searcher::Clients::ElasticSearch.new }
+    let(:default_headers){ { 'Content-Type' => 'application/json' } }
+    let(:default_body) do 
+      "{\"index\":{\"_index\":\"tmdb\",\"_type\":\"movie\",\"_id\":\"test\"}}\n\"test\"\n" 
+    end
+    let(:custom_body) do 
+      "{\"index\":{\"_index\":\"another\",\"_type\":\"custom\",\"_id\":\"test\"}}\n\"test\"\n" 
+    end
 
-    it 'sends post request for given index' do
-      expect(Searcher::Clients::ElasticSearch).to receive(:post).with('/_bulk', headers: { 'Content-Type' => 'application/json' }, body: 'test')
-      client.index('test')
+    it 'sends post request with default params' do
+      expect(Searcher::Clients::ElasticSearch)
+        .to receive(:post)
+        .with('/_bulk', headers: default_headers, body: default_body)
+
+      client.index({ test: 'test' })
+    end
+
+    it 'sends post request with custom params' do
+      expect(Searcher::Clients::ElasticSearch)
+        .to receive(:post)
+        .with('/_bulk', headers: default_headers, body: custom_body)
+
+      client.index({ test: 'test' }, '/another', 'custom')
     end
   end
 
   describe '#reindex' do
-    it 'destroys index, create it again and fill with given data' do
-      expect(client).to receive(:destroy).ordered
-      expect(client).to receive(:create).ordered
-      expect(client).to receive(:index).with('test').ordered
+    context 'when called without params' do
+      it 'destroys default index, create it again and fill with given data' do
+        expect(client).to receive(:destroy).with('/tmdb').ordered
+        expect(client).to receive(:create).with('/tmdb').ordered
+        expect(client).to receive(:index).with('test', '/tmdb', 'movie').ordered
 
-      client.reindex('test')
+        client.reindex('test')
+      end
+    end
+
+    context 'when params given' do
+      it 'destroys given index, create it again and fill with given data' do
+        expect(client).to receive(:destroy).with('/another').ordered
+        expect(client).to receive(:create).with('/another').ordered
+        expect(client).to receive(:index).with('test', '/another', 'custom').ordered
+
+        client.reindex('test', '/another', 'custom')
+      end
     end 
   end
 end

@@ -7,6 +7,6 @@ module Searcher
   end
 
   def self.reindex
-    Clients::ElasticSearch.new.reindex(TMDB.new.parse_data_for_bulk_index)
+    Clients::ElasticSearch.new.reindex(TMDB.new.extract)
   end
 end
