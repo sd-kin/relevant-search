@@ -78,12 +78,12 @@ describe Searcher::Clients::ElasticSearch do
 
   describe '#index' do
     let(:client) { Searcher::Clients::ElasticSearch.new }
-    let(:default_headers){ { 'Content-Type' => 'application/json' } }
-    let(:default_body) do 
-      "{\"index\":{\"_index\":\"tmdb\",\"_type\":\"movie\",\"_id\":\"test\"}}\n\"test\"\n" 
+    let(:default_headers) { { 'Content-Type' => 'application/json' } }
+    let(:default_body) do
+      "{\"index\":{\"_index\":\"tmdb\",\"_type\":\"movie\",\"_id\":\"test\"}}\n\"test\"\n"
     end
-    let(:custom_body) do 
-      "{\"index\":{\"_index\":\"another\",\"_type\":\"custom\",\"_id\":\"test\"}}\n\"test\"\n" 
+    let(:custom_body) do
+      "{\"index\":{\"_index\":\"another\",\"_type\":\"custom\",\"_id\":\"test\"}}\n\"test\"\n"
     end
 
     it 'sends post request with default params' do
@@ -91,7 +91,7 @@ describe Searcher::Clients::ElasticSearch do
         .to receive(:post)
         .with('/_bulk', headers: default_headers, body: default_body)
 
-      client.index({ test: 'test' })
+      client.index(test: 'test')
     end
 
     it 'sends post request with custom params' do
@@ -122,6 +122,30 @@ describe Searcher::Clients::ElasticSearch do
 
         client.reindex('test', '/another', 'custom')
       end
-    end 
+    end
+  end
+
+  describe '#search' do
+    let(:expected_headers) { { 'Content-Type' => 'application/json' } }
+
+    context 'when only query given' do
+      it 'sends get request to default endpoint' do
+        expect(Searcher::Clients::ElasticSearch)
+          .to receive(:get)
+          .with('/tmdb/movie/_search', headers: expected_headers, body: '{"test":"test"}')
+
+        client.search(test: 'test')
+      end
+    end
+
+    context 'when given query, index and type' do
+      it 'sends get request to endpoint for given index and type' do
+        expect(Searcher::Clients::ElasticSearch)
+          .to receive(:get)
+          .with('/another/custom/_search', headers: expected_headers, body: '{"test":"test"}')
+
+        client.search({ test: 'test' }, '/another', 'custom')
+      end
+    end
   end
 end

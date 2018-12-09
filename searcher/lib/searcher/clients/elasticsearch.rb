@@ -36,11 +36,18 @@ module Searcher
         index(data, index, type)
       end
 
+      def search(query, index = '/tmdb', type = 'movie')
+        headers = { 'Content-Type' => 'application/json' }
+        url = "#{index}/#{type}/_search"
+
+        self.class.get(url, headers: headers, body: JSON.dump(query))
+      end
+
       private
 
       def bulk_add_command(index, type, id)
         index.sub!('/', '')
-        JSON.dump({ index: { _index: index, _type: type, _id: id } })
+        JSON.dump(index: { _index: index, _type: type, _id: id })
       end
 
       def parse_data_for_bulk_index(data, index, type)

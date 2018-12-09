@@ -3,7 +3,6 @@ require 'json'
 module Searcher
   # Parsing data file from The Movie DataBase
   class TMDB
-    # TODO move that to Searcher::Adapters::TMDB::File
     DEFAULT_PATH = File.join(__dir__, '..', '..', 'data', 'tmdb.json').freeze
 
     attr_reader :file_path
