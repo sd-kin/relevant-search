@@ -61,4 +61,25 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       query.perform
     end
   end
+
+  describe '#explain' do
+    let(:searcher_stub) { double }
+    let(:query) do
+      described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
+    end
+    let(:expected_query) { { query: { multi_match: { query: 'test', fields: ['test_field'] } } } }
+
+    it 'sends search to client with given arguments' do
+      expect(query).to receive(:client).and_return(searcher_stub)
+      expect(searcher_stub).to receive(:explain).with(expected_query, '/test_index', 'test_type')
+
+      query.explain
+    end
+
+    it 'uses ElasticSearch client' do
+      expect_any_instance_of(Searcher::Clients::ElasticSearch).to receive(:explain)
+
+      query.explain
+    end
+  end
 end

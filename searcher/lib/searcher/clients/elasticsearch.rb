@@ -43,6 +43,13 @@ module Searcher
         self.class.get(url, headers: headers, body: JSON.dump(query))
       end
 
+      def explain(query, index = '/tmdb', type = 'movie')
+        headers = { 'Content-Type' => 'application/json' }
+        url = "#{index}/#{type}/_validate/query?explain"
+
+        self.class.get(url, headers: headers, body: JSON.dump(query))
+      end
+
       private
 
       def bulk_add_command(index, type, id)

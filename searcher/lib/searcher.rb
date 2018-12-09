@@ -11,7 +11,8 @@ module Searcher
   end
 
   def self.search(term, fields: [])
-    results = Queries::ElasticSearch::Multimatch.new(term, fields: fields).perform
+    query = Queries::ElasticSearch::Multimatch.new(term, fields: fields)
+    results = query.perform
     hits = results.dig('hits', 'hits')
 
     return unless hits
@@ -22,6 +23,6 @@ module Searcher
       puts "#{n + 1} \t #{hit['_score']} \t\t\t #{hit['_source']['title']}"
     end
 
-    puts '-' * 50
+    query
   end
 end

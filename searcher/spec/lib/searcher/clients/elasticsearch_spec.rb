@@ -148,4 +148,32 @@ describe Searcher::Clients::ElasticSearch do
       end
     end
   end
+
+  describe '#explain' do
+    let(:expected_headers) { { 'Content-Type' => 'application/json' } }
+
+    context 'when only query given' do
+      it 'sends get request to default endpoint' do
+        expect(Searcher::Clients::ElasticSearch)
+          .to receive(:get)
+          .with('/tmdb/movie/_validate/query?explain',
+                headers: expected_headers,
+                body: '{"test":"test"}')
+
+        client.explain(test: 'test')
+      end
+    end
+
+    context 'when given query, index and type' do
+      it 'sends get request to endpoint for given index and type' do
+        expect(Searcher::Clients::ElasticSearch)
+          .to receive(:get)
+          .with('/another/custom/_validate/query?explain',
+                headers: expected_headers,
+                body: '{"test":"test"}')
+
+        client.explain({ test: 'test' }, '/another', 'custom')
+      end
+    end
+  end
 end

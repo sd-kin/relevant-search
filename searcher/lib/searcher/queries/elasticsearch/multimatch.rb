@@ -15,6 +15,10 @@ module Searcher
           client.search(query, index, type)
         end
 
+        def explain
+          client.explain(query, index, type)
+        end
+
         private
 
         def client
