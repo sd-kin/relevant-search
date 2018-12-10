@@ -10,14 +10,8 @@ module Searcher
 
       base_uri 'http://localhost:9200'
 
-      def initialize(analysis_settings: {}, mappings_settings: {})
-        @settings = { settings: { number_of_shards: 1, index: {} } }
-        settings.fetch(:settings).fetch(:index)[:analysis] = analysis_settings
-        settings[:mappings] = mappings_settings
-      end
-
-      def create(index = '/tmdb')
-        self.class.put(index, settings)
+      def create(index = 'tmdb')
+        Requests::ElasticSearch::CreateIndex.new(name: index).perform
       end
 
       def destroy(index = '/tmdb')
@@ -30,10 +24,10 @@ module Searcher
         self.class.post('/_bulk', headers: headers, body: parsed_data)
       end
 
-      def reindex(data, index = '/tmdb', type = 'movie')
-        destroy(index)
+      def reindex(data, index = 'tmdb', type = 'movie')
+        destroy('/' + index)
         create(index)
-        index(data, index, type)
+        index(data, '/' + index, type)
       end
 
       def search(query, index = '/tmdb', type = 'movie')

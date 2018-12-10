@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'httparty'
 gem 'json'
+# bundle exec mutant --include lib --require 'searcher.rb' --use rspec Class
 gem 'mutant-rspec'
 gem 'pry'
 gem 'pry-byebug'
