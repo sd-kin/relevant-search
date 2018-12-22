@@ -1,16 +1,10 @@
-require 'httparty'
+require_relative 'base.rb'
 
 module Searcher
   module Requests
     module ElasticSearch
       # create ElasticSearch index with given name and options
-      class CreateIndex
-        include HTTParty
-
-        attr_reader :index_name, :options
-
-        base_uri 'http://localhost:9200'
-
+      class CreateIndex < Base
         def initialize(name: 'tmdb', config: {}, mappings: {})
           @index_name = name
           @options = { mappings: mappings }

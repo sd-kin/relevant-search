@@ -3,10 +3,9 @@ require_relative File.join(Searcher.root, 'lib', 'searcher', 'clients', 'elastic
 
 describe Searcher::Clients::ElasticSearch do
   let(:client) { Searcher::Clients::ElasticSearch.new }
+  let(:request_stab) { double }
 
   describe '#create' do
-    let(:request_stab) { double }
-
     context 'when no arguments given' do
       it 'performs create request for tmdb index' do
         expect(Searcher::Requests::ElasticSearch::CreateIndex)
@@ -35,15 +34,25 @@ describe Searcher::Clients::ElasticSearch do
   describe '#destroy' do
     context 'when no arguments given' do
       it 'sends delete request for default index' do
-        expect(Searcher::Clients::ElasticSearch).to receive(:delete).with('/tmdb')
+        expect(Searcher::Requests::ElasticSearch::DeleteIndex)
+          .to receive(:new)
+          .with(name: 'tmdb')
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
+
         client.destroy
       end
     end
 
     context 'when index name given' do
       it 'sends delete request for given index' do
-        expect(Searcher::Clients::ElasticSearch).to receive(:delete).with('/test')
-        client.destroy('/test')
+        expect(Searcher::Requests::ElasticSearch::DeleteIndex)
+          .to receive(:new)
+          .with(name: 'test')
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
+
+        client.destroy('test')
       end
     end
   end
@@ -78,7 +87,7 @@ describe Searcher::Clients::ElasticSearch do
   describe '#reindex' do
     context 'when called without params' do
       it 'destroys default index, create it again and fill with given data' do
-        expect(client).to receive(:destroy).with('/tmdb').ordered
+        expect(client).to receive(:destroy).with('tmdb').ordered
         expect(client).to receive(:create).with('tmdb').ordered
         expect(client).to receive(:index).with('test', '/tmdb', 'movie').ordered
 
@@ -88,7 +97,7 @@ describe Searcher::Clients::ElasticSearch do
 
     context 'when params given' do
       it 'destroys given index, create it again and fill with given data' do
-        expect(client).to receive(:destroy).with('/another').ordered
+        expect(client).to receive(:destroy).with('another').ordered
         expect(client).to receive(:create).with('another').ordered
         expect(client).to receive(:index).with('test', '/another', 'custom').ordered
 

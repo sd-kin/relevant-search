@@ -14,8 +14,8 @@ module Searcher
         Requests::ElasticSearch::CreateIndex.new(name: index).perform
       end
 
-      def destroy(index = '/tmdb')
-        self.class.delete(index)
+      def destroy(index = 'tmdb')
+        Requests::ElasticSearch::DeleteIndex.new(name: index).perform
       end
 
       def index(data, index = '/tmdb', type = 'movie')
@@ -25,7 +25,7 @@ module Searcher
       end
 
       def reindex(data, index = 'tmdb', type = 'movie')
-        destroy('/' + index)
+        destroy(index)
         create(index)
         index(data, '/' + index, type)
       end
