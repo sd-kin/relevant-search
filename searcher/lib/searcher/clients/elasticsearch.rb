@@ -26,11 +26,8 @@ module Searcher
         index(data, index, type)
       end
 
-      def search(query, index = '/tmdb', type = 'movie')
-        headers = { 'Content-Type' => 'application/json' }
-        url = "#{index}/#{type}/_search"
-
-        self.class.get(url, headers: headers, body: JSON.dump(query))
+      def search(query, index = 'tmdb', type = 'movie')
+        Requests::ElasticSearch::Search.new(name: index, type: type, query: query).perform
       end
 
       def explain(query, index = '/tmdb', type = 'movie')

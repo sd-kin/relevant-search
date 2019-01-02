@@ -106,25 +106,27 @@ describe Searcher::Clients::ElasticSearch do
   end
 
   describe '#search' do
-    let(:expected_headers) { { 'Content-Type' => 'application/json' } }
-
     context 'when only query given' do
-      it 'sends get request to default endpoint' do
-        expect(Searcher::Clients::ElasticSearch)
-          .to receive(:get)
-          .with('/tmdb/movie/_search', headers: expected_headers, body: '{"test":"test"}')
+      it 'builds new request with default type and index' do
+        expect(Searcher::Requests::ElasticSearch::Search)
+          .to receive(:new)
+          .with(query: { test: 'test'}, name: 'tmdb', type: 'movie')
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
 
         client.search(test: 'test')
       end
     end
 
     context 'when given query, index and type' do
-      it 'sends get request to endpoint for given index and type' do
-        expect(Searcher::Clients::ElasticSearch)
-          .to receive(:get)
-          .with('/another/custom/_search', headers: expected_headers, body: '{"test":"test"}')
+      it 'builds new request with given type and index' do
+        expect(Searcher::Requests::ElasticSearch::Search)
+          .to receive(:new)
+          .with(query: { test: 'test'}, name: 'another', type: 'custom')
+          .and_return(request_stab)
+         expect(request_stab).to receive(:perform)
 
-        client.search({ test: 'test' }, '/another', 'custom')
+        client.search({ test: 'test' }, 'another', 'custom')
       end
     end
   end
