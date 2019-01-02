@@ -6,8 +6,6 @@ module Searcher
     class ElasticSearch
       include HTTParty
 
-      attr_reader :settings
-
       base_uri 'http://localhost:9200'
 
       def create(index = 'tmdb')
@@ -18,16 +16,14 @@ module Searcher
         Requests::ElasticSearch::DeleteIndex.new(name: index).perform
       end
 
-      def index(data, index = '/tmdb', type = 'movie')
-        parsed_data = parse_data_for_bulk_index(data, index, type)
-        headers = { 'Content-Type' => 'application/json' }
-        self.class.post('/_bulk', headers: headers, body: parsed_data)
+      def index(data, index = 'tmdb', type = 'movie')
+        Requests::ElasticSearch::FillIndex.new(name: index, type: type, data: data).perform
       end
 
       def reindex(data, index = 'tmdb', type = 'movie')
         destroy(index)
         create(index)
-        index(data, '/' + index, type)
+        index(data, index, type)
       end
 
       def search(query, index = '/tmdb', type = 'movie')
@@ -42,24 +38,6 @@ module Searcher
         url = "#{index}/#{type}/_validate/query?explain"
 
         self.class.get(url, headers: headers, body: JSON.dump(query))
-      end
-
-      private
-
-      def bulk_add_command(index, type, id)
-        index.sub!('/', '')
-        JSON.dump(index: { _index: index, _type: type, _id: id })
-      end
-
-      def parse_data_for_bulk_index(data, index, type)
-        bulk_movies = ''
-
-        data.each do |id, film|
-          add_cmd = bulk_add_command(index, type, id)
-          bulk_movies += add_cmd + "\n" + JSON.dump(film) + "\n"
-        end
-
-        bulk_movies
       end
     end
   end

@@ -58,29 +58,28 @@ describe Searcher::Clients::ElasticSearch do
   end
 
   describe '#index' do
-    let(:client) { Searcher::Clients::ElasticSearch.new }
-    let(:default_headers) { { 'Content-Type' => 'application/json' } }
-    let(:default_body) do
-      "{\"index\":{\"_index\":\"tmdb\",\"_type\":\"movie\",\"_id\":\"test\"}}\n\"test\"\n"
-    end
-    let(:custom_body) do
-      "{\"index\":{\"_index\":\"another\",\"_type\":\"custom\",\"_id\":\"test\"}}\n\"test\"\n"
-    end
+    context 'when only data given' do
+      it 'sends request with default parameters' do
+        expect(Searcher::Requests::ElasticSearch::FillIndex)
+          .to receive(:new)
+          .with(data: [], name: 'tmdb', type: 'movie')
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
 
-    it 'sends post request with default params' do
-      expect(Searcher::Clients::ElasticSearch)
-        .to receive(:post)
-        .with('/_bulk', headers: default_headers, body: default_body)
-
-      client.index(test: 'test')
+        client.index([])
+      end
     end
 
-    it 'sends post request with custom params' do
-      expect(Searcher::Clients::ElasticSearch)
-        .to receive(:post)
-        .with('/_bulk', headers: default_headers, body: custom_body)
+    context 'when all arguments given' do
+      it 'sends request with given parameters' do
+        expect(Searcher::Requests::ElasticSearch::FillIndex)
+          .to receive(:new)
+          .with(data: [], name: 'test', type: 'test_type')
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
 
-      client.index({ test: 'test' }, '/another', 'custom')
+        client.index([], 'test', 'test_type')
+      end
     end
   end
 
@@ -89,7 +88,7 @@ describe Searcher::Clients::ElasticSearch do
       it 'destroys default index, create it again and fill with given data' do
         expect(client).to receive(:destroy).with('tmdb').ordered
         expect(client).to receive(:create).with('tmdb').ordered
-        expect(client).to receive(:index).with('test', '/tmdb', 'movie').ordered
+        expect(client).to receive(:index).with('test', 'tmdb', 'movie').ordered
 
         client.reindex('test')
       end
@@ -99,7 +98,7 @@ describe Searcher::Clients::ElasticSearch do
       it 'destroys given index, create it again and fill with given data' do
         expect(client).to receive(:destroy).with('another').ordered
         expect(client).to receive(:create).with('another').ordered
-        expect(client).to receive(:index).with('test', '/another', 'custom').ordered
+        expect(client).to receive(:index).with('test', 'another', 'custom').ordered
 
         client.reindex('test', 'another', 'custom')
       end
