@@ -2,37 +2,37 @@
 
 require 'spec_helper'
 
-describe Searcher::Requests::ElasticSearch::Search do
+describe Searcher::Requests::ElasticSearch::Explain do
   describe '.new' do
-    subject(:search_request) do
+    subject(:explain_request) do
       described_class.new(name: 'test_index', type: 'some_type', query: { title: 'test' })
     end
 
     it 'has json headers' do
-      expect(search_request.headers).to eq('Content-Type' => 'application/json')
+      expect(explain_request.headers).to eq('Content-Type' => 'application/json')
     end
 
     it 'has correct url for given index and type' do
-      expect(search_request.url).to eq('/test_index/some_type/_search')
+      expect(explain_request.url).to eq('/test_index/some_type/_validate/query?explain')
     end
 
     it 'generates json body' do
-      expect(search_request.body).to eq('{"title":"test"}')
+      expect(explain_request.body).to eq('{"title":"test"}')
     end
   end
 
   describe '#perform' do
-    let(:search_request) do
+    let(:explain_request) do
       described_class.new(name: 'test_index', type: 'some_type', query: 'test')
     end
-    subject(:perform_search) { search_request.perform }
+    subject(:explain_query) { explain_request.perform }
 
     it 'sends correct request' do
       expect(described_class)
         .to receive(:get)
-        .with(search_request.url, headers: search_request.headers, body: search_request.body)
+        .with(explain_request.url, headers: explain_request.headers, body: explain_request.body)
 
-      perform_search
+      explain_query
     end
   end
 end

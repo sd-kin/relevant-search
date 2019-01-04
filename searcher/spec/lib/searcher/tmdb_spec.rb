@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require_relative File.join(Searcher.root, 'lib', 'searcher', 'tmdb.rb')
 

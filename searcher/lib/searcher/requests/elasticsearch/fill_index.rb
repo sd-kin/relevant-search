@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'base.rb'
 
 module Searcher
@@ -7,7 +9,7 @@ module Searcher
       class FillIndex < Base
         attr_reader :headers, :body
 
-        def initialize(data: , name: , type: )
+        def initialize(data:, name:, type:)
           @body = prepare_request(data, name, type)
           @headers = { 'Content-Type' => 'application/json' }
         end

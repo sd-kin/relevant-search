@@ -1,13 +1,9 @@
-require 'httparty'
+# frozen_string_literal: true
 
 module Searcher
   module Clients
     # http client for ElasticSearch
     class ElasticSearch
-      include HTTParty
-
-      base_uri 'http://localhost:9200'
-
       def create(index = 'tmdb')
         Requests::ElasticSearch::CreateIndex.new(name: index).perform
       end
@@ -30,11 +26,8 @@ module Searcher
         Requests::ElasticSearch::Search.new(name: index, type: type, query: query).perform
       end
 
-      def explain(query, index = '/tmdb', type = 'movie')
-        headers = { 'Content-Type' => 'application/json' }
-        url = "#{index}/#{type}/_validate/query?explain"
-
-        self.class.get(url, headers: headers, body: JSON.dump(query))
+      def explain(query, index = 'tmdb', type = 'movie')
+        Requests::ElasticSearch::Explain.new(name: index, type: type, query: query).perform
       end
     end
   end
