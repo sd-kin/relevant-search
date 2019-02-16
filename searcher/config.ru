@@ -5,16 +5,21 @@ require_relative 'lib/searcher'
 
 stub_app = lambda do |env|
   req = Rack::Request.new(env)
+  results = Searcher::Queries::ElasticSearch::Multimatch
+            .new(req.params['query'], fields: req.params['fields'] || [])
+            .perform
+            .dig('hits', 'hits')
+
+  filtered_results = results.map do |res|
+    Searcher::Serializers::ElasticSearch::Multimatch
+      .new(res)
+      .serializable_hash
+  end
+
   [
     200,
     { 'Content-Type' => 'application/json' },
-    [
-      Searcher::Queries::ElasticSearch::Multimatch
-        .new(req.params['query'], fields: req.params['fields'] || [])
-        .perform
-        .dig('hits', 'hits')
-        .to_json
-    ]
+    [filtered_results.to_json]
   ]
 end
 
