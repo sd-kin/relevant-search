@@ -12,6 +12,10 @@ module Searcher
     Clients::ElasticSearch.new.reindex(TMDB.new.extract, mappings: mappings_settings)
   end
 
+  def self.analyze(field:, text:)
+    Searcher::Requests::ElasticSearch::Analyze.new(field: field, text: text).perform
+  end
+
   def self.search(term, fields: [])
     query = Queries::ElasticSearch::Multimatch.new(term, fields: fields)
     results = query.perform

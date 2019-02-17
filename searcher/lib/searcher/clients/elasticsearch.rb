@@ -29,6 +29,10 @@ module Searcher
       def explain(query, index = 'tmdb', type = 'movie')
         Requests::ElasticSearch::Explain.new(name: index, type: type, query: query).perform
       end
+
+      def analyze(field:, text:)
+        Requests::ElasticSearch::Analyze.new(field: field, text: text).perform
+      end
     end
   end
 end

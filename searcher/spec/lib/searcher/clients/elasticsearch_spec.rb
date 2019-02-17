@@ -170,4 +170,18 @@ describe Searcher::Clients::ElasticSearch do
       end
     end
   end
+
+  describe '#analyze' do
+    subject(:analyze_text) { client.analyze(field: :title, text: 'test') }
+
+    it 'performs analyze request with given arguments' do
+      expect(Searcher::Requests::ElasticSearch::Analyze)
+        .to receive(:new)
+        .with(field: :title, text: 'test')
+        .and_return(request_stab)
+      expect(request_stab).to receive(:perform)
+
+      analyze_text
+    end
+  end
 end
