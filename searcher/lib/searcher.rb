@@ -9,7 +9,7 @@ module Searcher
   end
 
   def self.reindex
-    Clients::ElasticSearch.new.reindex(TMDB.new.extract)
+    Clients::ElasticSearch.new.reindex(TMDB.new.extract, mappings: mappings_settings)
   end
 
   def self.search(term, fields: [])
@@ -26,5 +26,16 @@ module Searcher
     end
 
     query
+  end
+
+  def self.mappings_settings
+    {
+      movie: {
+        properties: {
+          title: { type: 'text', analyzer: 'english' },
+          overwiew: { type: 'text', analyzer: 'english' }
+        }
+      }
+    }
   end
 end

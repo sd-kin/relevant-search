@@ -15,10 +15,13 @@ describe Searcher do
 
   describe '.reindex' do
     let(:stub) { double }
+    let(:mappings) { Searcher.mappings_settings }
 
     it 'calls ElasticSearch reindex with TMDB data' do
       expect_any_instance_of(Searcher::TMDB).to receive(:extract).and_return(stub)
-      expect_any_instance_of(Searcher::Clients::ElasticSearch).to receive(:reindex).with(stub)
+      expect_any_instance_of(Searcher::Clients::ElasticSearch)
+        .to receive(:reindex)
+        .with(stub, mappings: mappings)
 
       Searcher.reindex
     end

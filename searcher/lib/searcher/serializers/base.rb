@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry-byebug'
 module Searcher
   module Serializers
     # Provides a basic serialization functional for specifying list of hash keys for serialization

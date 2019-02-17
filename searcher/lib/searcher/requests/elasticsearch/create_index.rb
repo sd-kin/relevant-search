@@ -7,14 +7,17 @@ module Searcher
     module ElasticSearch
       # create ElasticSearch index with given name and options
       class CreateIndex < Base
+        attr_reader :headers
+
         def initialize(name: 'tmdb', config: {}, mappings: {})
+          @headers = { 'Content-Type' => 'application/json' }
           @index_name = name
           @options = { mappings: mappings }
-          options[:config] = config.merge(number_of_shards: 1)
+          options[:settings] = config.merge(number_of_shards: 1)
         end
 
         def perform
-          self.class.put('/' + index_name, options)
+          self.class.put('/' + index_name, headers: headers, body: options.to_json)
         end
       end
     end

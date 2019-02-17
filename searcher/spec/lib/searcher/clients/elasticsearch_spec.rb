@@ -12,7 +12,7 @@ describe Searcher::Clients::ElasticSearch do
       it 'performs create request for tmdb index' do
         expect(Searcher::Requests::ElasticSearch::CreateIndex)
           .to receive(:new)
-          .with(name: 'tmdb')
+          .with(name: 'tmdb', mappings: {})
           .and_return(request_stab)
         expect(request_stab).to receive(:perform)
 
@@ -24,11 +24,23 @@ describe Searcher::Clients::ElasticSearch do
       it 'performs create request for tmdb index' do
         expect(Searcher::Requests::ElasticSearch::CreateIndex)
           .to receive(:new)
-          .with(name: 'another')
+          .with(name: 'another', mappings: {})
           .and_return(request_stab)
         expect(request_stab).to receive(:perform)
 
         client.create('another')
+      end
+    end
+
+    context 'when mappings settings given' do
+      it 'performs create request with mappings settings' do
+        expect(Searcher::Requests::ElasticSearch::CreateIndex)
+          .to receive(:new)
+          .with(name: 'tmdb', mappings: { title: 'string' })
+          .and_return(request_stab)
+        expect(request_stab).to receive(:perform)
+
+        client.create(mappings: { title: 'string' })
       end
     end
   end
@@ -89,7 +101,7 @@ describe Searcher::Clients::ElasticSearch do
     context 'when called without params' do
       it 'destroys default index, create it again and fill with given data' do
         expect(client).to receive(:destroy).with('tmdb').ordered
-        expect(client).to receive(:create).with('tmdb').ordered
+        expect(client).to receive(:create).with('tmdb', mappings: {}).ordered
         expect(client).to receive(:index).with('test', 'tmdb', 'movie').ordered
 
         client.reindex('test')
@@ -99,10 +111,10 @@ describe Searcher::Clients::ElasticSearch do
     context 'when params given' do
       it 'destroys given index, create it again and fill with given data' do
         expect(client).to receive(:destroy).with('another').ordered
-        expect(client).to receive(:create).with('another').ordered
+        expect(client).to receive(:create).with('another', mappings: { a: 'b' }).ordered
         expect(client).to receive(:index).with('test', 'another', 'custom').ordered
 
-        client.reindex('test', 'another', 'custom')
+        client.reindex('test', 'another', 'custom', mappings: { a: 'b' })
       end
     end
   end

@@ -15,8 +15,8 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
         expect(described_class.new.options.fetch(:mappings)).to eq({})
       end
 
-      it 'has config for use one shard' do
-        expect(described_class.new.options.fetch(:config).fetch(:number_of_shards)).to eq(1)
+      it 'has settings for use one shard' do
+        expect(described_class.new.options.fetch(:settings).fetch(:number_of_shards)).to eq(1)
       end
     end
 
@@ -32,11 +32,11 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
       let(:params) { { config: { test: true } } }
 
       it 'sets given config option' do
-        expect(create_index_request.options.fetch(:config).fetch(:test)).to be_truthy
+        expect(create_index_request.options.fetch(:settings).fetch(:test)).to be_truthy
       end
 
       it 'has config for use one shard' do
-        expect(create_index_request.options.fetch(:config).fetch(:number_of_shards)).to eq(1)
+        expect(create_index_request.options.fetch(:settings).fetch(:number_of_shards)).to eq(1)
       end
     end
   end
@@ -45,7 +45,11 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
     it 'calls put on a class' do
       expect(described_class)
         .to receive(:put)
-        .with('/index', config: { number_of_shards: 1, a: 'b' }, mappings: { c: 'd' })
+        .with(
+          '/index',
+          body: {  mappings: { c: 'd' }, settings: { a: 'b', number_of_shards: 1 } }.to_json,
+          headers: { 'Content-Type' => 'application/json' }
+        )
 
       described_class.new(name: 'index', config: { a: 'b' }, mappings: { c: 'd' }).perform
     end
