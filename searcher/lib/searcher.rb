@@ -37,7 +37,7 @@ module Searcher
       movie: {
         properties: {
           title: { type: 'text', analyzer: 'english' },
-          overwiew: { type: 'text', analyzer: 'english' }
+          overview: { type: 'text', analyzer: 'english' }
         }
       }
     }

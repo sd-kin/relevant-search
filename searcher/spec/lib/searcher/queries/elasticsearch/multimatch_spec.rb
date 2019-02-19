@@ -23,11 +23,11 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
 
     context 'when params given' do
       let(:expected_query) do
-        { query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body'] } } }
+        { query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } } }
       end
 
       it 'returns request for given fields' do
-        expect(described_class.new('this is a test', fields: ['title^10', 'body']).query)
+        expect(described_class.new('this is a test', fields: ['title^10', 'body^2']).query)
           .to eq(expected_query)
       end
 
@@ -39,6 +39,11 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       it 'uses type from params' do
         expect(described_class.new('this is a test', type: 'custom').type)
           .to eq('custom')
+      end
+
+      it 'parses fields with quantifiers' do
+        expect(described_class.new('this is a test', fields: [title: 10, body: 2]).query)
+          .to eq(expected_query)
       end
     end
   end
