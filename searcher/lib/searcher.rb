@@ -27,8 +27,7 @@ module Searcher
 
     hits.each.with_index(1) do |hit, n|
       puts "#{n} \t #{hit['_score']} \t\t\t #{hit['_source']['title']}"
-      puts 'Explanation:'
-      pp hit['_explanation']
+      pp hit['_explanation'] if explain
     end
 
     query

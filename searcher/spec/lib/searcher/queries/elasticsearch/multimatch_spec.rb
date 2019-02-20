@@ -7,7 +7,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     context 'when only query given' do
       it 'returns request without fields' do
         expect(described_class.new('this is a test').query)
-          .to eq(explain: false, query: { multi_match: { query: 'this is a test', fields: [] } })
+          .to eq(query: { multi_match: { query: 'this is a test', fields: [] } })
       end
 
       it 'uses default index from params' do
@@ -24,8 +24,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     context 'when params given' do
       let(:expected_query) do
         {
-          query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } },
-          explain: false
+          query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } }
         }
       end
 
@@ -48,6 +47,11 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
         expect(described_class.new('this is a test', fields: [title: 10, body: 2]).query)
           .to eq(expected_query)
       end
+
+      it 'builds query with explain flag' do
+        expect(described_class.new('this is a test', explain: true).query)
+          .to eq(explain: true, query: { multi_match: { query: 'this is a test', fields: [] } })
+      end
     end
   end
 
@@ -57,7 +61,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
     let(:expected_query) do
-      { query: { multi_match: { query: 'test', fields: ['test_field'] } }, explain: false }
+      { query: { multi_match: { query: 'test', fields: ['test_field'] } } }
     end
 
     it 'sends search to client with given arguments' do
@@ -80,7 +84,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
     let(:expected_query) do
-      { query: { multi_match: { query: 'test', fields: ['test_field'] } }, explain: false }
+      { query: { multi_match: { query: 'test', fields: ['test_field'] } } }
     end
 
     it 'sends search to client with given arguments' do
