@@ -7,7 +7,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     context 'when only query given' do
       it 'returns request without fields' do
         expect(described_class.new('this is a test').query)
-          .to eq(query: { multi_match: { query: 'this is a test', fields: [] } })
+          .to eq(explain: false, query: { multi_match: { query: 'this is a test', fields: [] } })
       end
 
       it 'uses default index from params' do
@@ -23,7 +23,10 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
 
     context 'when params given' do
       let(:expected_query) do
-        { query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } } }
+        {
+          query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } },
+          explain: false
+        }
       end
 
       it 'returns request for given fields' do
@@ -53,7 +56,9 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     let(:query) do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
-    let(:expected_query) { { query: { multi_match: { query: 'test', fields: ['test_field'] } } } }
+    let(:expected_query) do
+      { query: { multi_match: { query: 'test', fields: ['test_field'] } }, explain: false }
+    end
 
     it 'sends search to client with given arguments' do
       expect(query).to receive(:client).and_return(searcher_stub)
@@ -74,7 +79,9 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     let(:query) do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
-    let(:expected_query) { { query: { multi_match: { query: 'test', fields: ['test_field'] } } } }
+    let(:expected_query) do
+      { query: { multi_match: { query: 'test', fields: ['test_field'] } }, explain: false }
+    end
 
     it 'sends search to client with given arguments' do
       expect(query).to receive(:client).and_return(searcher_stub)

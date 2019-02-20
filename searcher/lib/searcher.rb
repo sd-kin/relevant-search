@@ -16,8 +16,8 @@ module Searcher
     Searcher::Requests::ElasticSearch::Analyze.new(field: field, text: text).perform
   end
 
-  def self.search(term, fields: [])
-    query = Queries::ElasticSearch::Multimatch.new(term, fields: fields)
+  def self.search(term, fields: [], explain: false)
+    query = Queries::ElasticSearch::Multimatch.new(term, fields: fields, explain: explain)
     results = query.perform
     hits = results.dig('hits', 'hits')
 
@@ -25,8 +25,10 @@ module Searcher
 
     puts "Num \t Relevance Score \t\t Movie Title"
 
-    hits.each.with_index do |hit, n|
-      puts "#{n + 1} \t #{hit['_score']} \t\t\t #{hit['_source']['title']}"
+    hits.each.with_index(1) do |hit, n|
+      puts "#{n} \t #{hit['_score']} \t\t\t #{hit['_source']['title']}"
+      puts 'Explanation:'
+      pp hit['_explanation']
     end
 
     query

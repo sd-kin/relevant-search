@@ -33,7 +33,7 @@ describe Searcher do
     it 'calls multimatch query' do
       expect(Searcher::Queries::ElasticSearch::Multimatch)
         .to receive(:new)
-        .with('test', fields: [])
+        .with('test', fields: [], explain: false)
         .and_return(query_stub)
 
       expect(query_stub).to receive(:perform).and_return({})

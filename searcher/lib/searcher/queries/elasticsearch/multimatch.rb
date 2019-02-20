@@ -7,8 +7,8 @@ module Searcher
       class Multimatch
         attr_reader :query, :index, :type
 
-        def initialize(term, fields: [], index: '/tmdb', type: 'movie')
-          @query = build_query(term, fields)
+        def initialize(term, fields: [], index: '/tmdb', type: 'movie', explain: false)
+          @query = build_query(term, fields, explain)
           @index = index
           @type = type
         end
@@ -23,8 +23,11 @@ module Searcher
 
         private
 
-        def build_query(term, fields)
-          { query: { multi_match: { query: term, fields: parse_fields(fields) } } }
+        def build_query(term, fields, explain)
+          {
+            query: { multi_match: { query: term, fields: parse_fields(fields) } },
+            explain: explain
+          }
         end
 
         def parse_fields(fields)
