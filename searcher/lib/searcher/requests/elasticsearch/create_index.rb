@@ -9,11 +9,16 @@ module Searcher
       class CreateIndex < Base
         attr_reader :headers
 
-        def initialize(name: 'tmdb', config: {}, mappings: {})
+        def initialize(name: 'tmdb', config: {}, mappings: {}, analysis: {})
           @headers = { 'Content-Type' => 'application/json' }
           @index_name = name
-          @options = { mappings: mappings }
-          options[:settings] = config.merge(number_of_shards: 1)
+          @options = {
+            settings: {
+              index: config.merge(number_of_shards: 1),
+              analysis: analysis
+            },
+            mappings: mappings
+          }
         end
 
         def perform

@@ -8,8 +8,20 @@ module Searcher
     File.dirname __dir__
   end
 
+  def self.destroy
+    Clients::ElasticSearch.new.destroy('tmdb')
+  end
+
+  def self.create
+    Clients::ElasticSearch.new.create('tmdb', analysis: analysis_settings)
+  end
+
   def self.reindex
-    Clients::ElasticSearch.new.reindex(TMDB.new.extract, mappings: mappings_settings)
+    Clients::ElasticSearch.new.reindex(
+      TMDB.new.extract,
+      mappings: mappings_settings,
+      analysis: analysis_settings
+    )
   end
 
   def self.analyze(field:, text:)
@@ -38,7 +50,41 @@ module Searcher
       movie: {
         properties: {
           title: { type: 'text', analyzer: 'english' },
-          overview: { type: 'text', analyzer: 'english' }
+          overview: { type: 'text', analyzer: 'english' },
+          cast: {
+            properties: {
+              name: {
+                type: 'text',
+                analyzer: 'english',
+                fields: {
+                  bigrammed: { type: 'text', analyzer: 'english_bigrams' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  end
+
+  def self.analysis_settings
+    {
+      analyzer: {
+        default: {
+          type: :english
+        },
+        english_bigrams: {
+          type: :custom,
+          tokenizer: :standard,
+          filter: %w[standard lowercase porter_stem bigram_filter]
+        }
+      },
+      filter: {
+        bigram_filter: {
+          type: :shingle,
+          max_shingle_size: 2,
+          min_shingle_size: 2,
+          output_unigrams: false
         }
       }
     }

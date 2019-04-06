@@ -16,7 +16,12 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
       end
 
       it 'has settings for use one shard' do
-        expect(described_class.new.options.fetch(:settings).fetch(:number_of_shards)).to eq(1)
+        number_of_shards = described_class
+                           .new
+                           .options
+                           .dig(:settings, :index, :number_of_shards)
+
+        expect(number_of_shards).to eq(1)
       end
     end
 
@@ -32,11 +37,20 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
       let(:params) { { config: { test: true } } }
 
       it 'sets given config option' do
-        expect(create_index_request.options.fetch(:settings).fetch(:test)).to be_truthy
+        test_config = create_index_request
+                      .options
+                      .dig(:settings, :index, :test)
+
+        expect(test_config).to be_truthy
       end
 
-      it 'has config for use one shard' do
-        expect(create_index_request.options.fetch(:settings).fetch(:number_of_shards)).to eq(1)
+      it 'has settings for use one shard' do
+        number_of_shards = described_class
+                           .new
+                           .options
+                           .dig(:settings, :index, :number_of_shards)
+
+        expect(number_of_shards).to eq(1)
       end
     end
   end
@@ -47,11 +61,21 @@ describe Searcher::Requests::ElasticSearch::CreateIndex do
         .to receive(:put)
         .with(
           '/index',
-          body: {  mappings: { c: 'd' }, settings: { a: 'b', number_of_shards: 1 } }.to_json,
+          body: {
+            settings: {
+              index: { a: 'b', number_of_shards: 1 },
+              analysis: { analyzer: 'standard' }
+            },
+            mappings: { c: 'd' }
+          }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
 
-      described_class.new(name: 'index', config: { a: 'b' }, mappings: { c: 'd' }).perform
+      described_class.new(
+        name: 'index', config: { a: 'b' },
+        mappings: { c: 'd' },
+        analysis: { analyzer: 'standard' }
+      ).perform
     end
   end
 end

@@ -4,8 +4,8 @@ module Searcher
   module Clients
     # http client for ElasticSearch
     class ElasticSearch
-      def create(index = 'tmdb', mappings: {})
-        Requests::ElasticSearch::CreateIndex.new(name: index, mappings: mappings).perform
+      def create(index = 'tmdb', mappings: {}, analysis: {})
+        Requests::ElasticSearch::CreateIndex.new(name: index, mappings: mappings, analysis: analysis).perform
       end
 
       def destroy(index = 'tmdb')
@@ -16,9 +16,9 @@ module Searcher
         Requests::ElasticSearch::FillIndex.new(name: index, type: type, data: data).perform
       end
 
-      def reindex(data, index = 'tmdb', type = 'movie', mappings: {})
+      def reindex(data, index = 'tmdb', type = 'movie', mappings: {}, analysis: {})
         destroy(index)
-        create(index, mappings: mappings)
+        create(index, mappings: mappings, analysis: analysis)
         index(data, index, type)
       end
 
