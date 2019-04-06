@@ -34,7 +34,7 @@ describe Searcher do
     it 'calls multimatch query' do
       expect(Searcher::Queries::ElasticSearch::Multimatch)
         .to receive(:new)
-        .with('test', fields: [], explain: false)
+        .with('test', fields: [], explain: false, strategy: 'best_fields', tie_breaker: nil)
         .and_return(query_stub)
 
       expect(query_stub).to receive(:perform).and_return({})

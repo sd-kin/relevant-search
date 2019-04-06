@@ -28,8 +28,15 @@ module Searcher
     Searcher::Requests::ElasticSearch::Analyze.new(field: field, text: text).perform
   end
 
-  def self.search(term, fields: [], explain: false)
-    query = Queries::ElasticSearch::Multimatch.new(term, fields: fields, explain: explain)
+  def self.search(term, fields: [], explain: false, strategy: 'best_fields', tie_breaker: nil)
+    query = Queries::ElasticSearch::Multimatch.new(
+      term,
+      fields: fields,
+      explain: explain,
+      strategy: strategy,
+      tie_breaker: tie_breaker
+    )
+
     results = query.perform
     hits = results.dig('hits', 'hits')
 
@@ -52,6 +59,17 @@ module Searcher
           title: { type: 'text', analyzer: 'english' },
           overview: { type: 'text', analyzer: 'english' },
           cast: {
+            properties: {
+              name: {
+                type: 'text',
+                analyzer: 'english',
+                fields: {
+                  bigrammed: { type: 'text', analyzer: 'english_bigrams' }
+                }
+              }
+            }
+          },
+          directors: {
             properties: {
               name: {
                 type: 'text',

@@ -5,7 +5,7 @@ module Searcher
     module ElasticSearch
       # mutltimatch search result serializer
       class Multimatch < Base
-        attributes '_id', '_score', 'title', 'overview'
+        attributes '_id', '_score', 'title', 'overview', 'cast', 'directors'
       end
     end
   end

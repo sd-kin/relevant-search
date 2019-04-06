@@ -123,7 +123,12 @@ describe Searcher::Clients::ElasticSearch do
     context 'when params given' do
       it 'destroys given index, create it again and fill with given data' do
         expect(client).to receive(:destroy).with('another').ordered
-        expect(client).to receive(:create).with('another', mappings: { a: 'b' }, analysis: {}).ordered
+
+        expect(client)
+          .to receive(:create)
+          .with('another', mappings: { a: 'b' }, analysis: {})
+          .ordered
+
         expect(client).to receive(:index).with('test', 'another', 'custom').ordered
 
         client.reindex('test', 'another', 'custom', mappings: { a: 'b' })

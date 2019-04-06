@@ -7,7 +7,9 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     context 'when only query given' do
       it 'returns request without fields' do
         expect(described_class.new('this is a test').query)
-          .to eq(query: { multi_match: { query: 'this is a test', fields: [] } })
+          .to eq(
+            query: { multi_match: { query: 'this is a test', fields: [], type: 'best_fields' } }
+          )
       end
 
       it 'uses default index from params' do
@@ -24,7 +26,11 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
     context 'when params given' do
       let(:expected_query) do
         {
-          query: { multi_match: { query: 'this is a test', fields: ['title^10', 'body^2'] } }
+          query: {
+            multi_match: {
+              query: 'this is a test', fields: ['title^10', 'body^2'], type: 'best_fields'
+            }
+          }
         }
       end
 
@@ -50,7 +56,10 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
 
       it 'builds query with explain flag' do
         expect(described_class.new('this is a test', explain: true).query)
-          .to eq(explain: true, query: { multi_match: { query: 'this is a test', fields: [] } })
+          .to eq(
+            explain: true,
+            query: { multi_match: { query: 'this is a test', fields: [], type: 'best_fields' } }
+          )
       end
     end
   end
@@ -61,7 +70,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
     let(:expected_query) do
-      { query: { multi_match: { query: 'test', fields: ['test_field'] } } }
+      { query: { multi_match: { query: 'test', fields: ['test_field'], type: 'best_fields' } } }
     end
 
     it 'sends search to client with given arguments' do
@@ -84,7 +93,7 @@ describe Searcher::Queries::ElasticSearch::Multimatch do
       described_class.new('test', fields: ['test_field'], index: '/test_index', type: 'test_type')
     end
     let(:expected_query) do
-      { query: { multi_match: { query: 'test', fields: ['test_field'] } } }
+      { query: { multi_match: { query: 'test', fields: ['test_field'], type: 'best_fields' } } }
     end
 
     it 'sends search to client with given arguments' do

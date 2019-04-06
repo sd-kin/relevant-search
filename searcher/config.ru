@@ -6,7 +6,12 @@ require_relative 'lib/searcher'
 stub_app = lambda do |env|
   req = Rack::Request.new(env)
   results = Searcher::Queries::ElasticSearch::Multimatch
-            .new(req.params['query'], fields: req.params['fields'] || [])
+            .new(
+              req.params['query'],
+              fields: req.params['fields'] || [],
+              strategy: req.params['strategy'],
+              tie_breaker: req.params['tie']
+            )
             .perform
             .dig('hits', 'hits')
 

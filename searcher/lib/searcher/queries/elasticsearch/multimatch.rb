@@ -7,8 +7,8 @@ module Searcher
       class Multimatch
         attr_reader :query, :index, :type
 
-        def initialize(term, fields: [], index: '/tmdb', type: 'movie', explain: nil)
-          @query = build_query(term, fields, explain)
+        def initialize(term, fields: [], index: '/tmdb', type: 'movie', explain: nil, strategy: 'best_fields', tie_breaker: nil)
+          @query = build_query(term, fields, explain, strategy, tie_breaker)
           @index = index
           @type = type
         end
@@ -23,8 +23,15 @@ module Searcher
 
         private
 
-        def build_query(term, fields, explain)
-          query = { query: { multi_match: { query: term, fields: parse_fields(fields) } } }
+        def build_query(term, fields, explain, strategy, tie_breaker)
+          query = {
+            query: {
+              multi_match: {
+                query: term, fields: parse_fields(fields), type: strategy
+              }
+            }
+          }
+          query[:query][:multi_match][:tie_breaker] = tie_breaker if tie_breaker
           explain ? query.merge(explain: explain) : query
         end
 
